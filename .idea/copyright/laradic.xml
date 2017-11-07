@@ -1,0 +1,7 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="allowReplaceRegexp" value="\*" />
+    <option name="notice" value="Part of the Laradic PHP Packages.&#10;&#10;Copyright (c) &amp;#36;today.year. Robin Radic.&#10;&#10;The license can be found in the package and online at https://laradic.mit-license.org.&#10;&#10;@copyright Copyright &amp;#36;today.year (c) Robin Radic&#10;@license https://laradic.mit-license.org The MIT License" />
+    <option name="myName" value="laradic" />
+  </copyright>
+</component>

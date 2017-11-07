@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "lib": ["es2017"],
+        "moduleResolution": "node",
+        "module": "commonjs",
+        "emitDecoratorMetadata": true,
+        "inlineSourceMap": true,
+        "allowJs": false,
+        "inlineSources": true,
+        "declarationDir": "./types",
+        "declaration": true,
+        "experimentalDecorators": true,
+        "pretty": true,
+        "noImplicitAny": false,
+        "noImplicitReturns": false,
+        "allowUnreachableCode": true,
+        "allowSyntheticDefaultImports": true,
+        "typeRoots": [
+            "./node_modules/@types",
+            "./src/typings"
+        ]
+    },
+    "include": [
+        "gulpfile.ts"
+    ],
+    "exclude": [
+        "./node_modules",
+        "./packages"
+    ],
+    "compileOnSave": true,
+    "typeAcquisition": {
+        "enable": true
+    }
+}

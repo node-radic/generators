@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="gulp serve" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="$USER_HOME$/.nvm/versions/node/v8.4.0/bin/node" path-to-js-file="node_modules/.bin/gulp" application-parameters="serve" working-dir="$PROJECT_DIR$/">
+    <method />
+  </configuration>
+</component>

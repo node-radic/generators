@@ -1,0 +1,16 @@
+{
+    "name": "generator-radical-gitignore",
+    "version": "0.0.1",
+    "description": "",
+    "main": "index.js",
+    "types": "types",
+    "keywords": ["yeoman-generator"],
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "Robin Radic <rradic@hotmail.com> (https://radic.nl/)",
+    "license": "MIT",
+    "dependencies": {
+        "@radic/generators": "^0.0.1"
+    }
+}

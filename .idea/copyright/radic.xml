@@ -1,0 +1,7 @@
+<component name="CopyrightManager">
+  <copyright>
+    <option name="allowReplaceRegexp" value="\*" />
+    <option name="notice" value="Copyright (c) &amp;#36;today.year. Robin Radic.&#10;&#10;MIT License.&#10;&#10;The license can be found in the package and online at https://radic.mit-license.org.&#10;&#10;@copyright &amp;#36;today.year Robin Radic&#10;@license https://radic.mit-license.org MIT License" />
+    <option name="myName" value="radic" />
+  </copyright>
+</component>
