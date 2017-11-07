@@ -8,7 +8,6 @@
         "inlineSourceMap": true,
         "allowJs": false,
         "inlineSources": true,
-        "declarationDir": "./types",
         "declaration": true,
         "experimentalDecorators": true,
         "pretty": true,
@@ -16,21 +15,12 @@
         "noImplicitReturns": false,
         "allowUnreachableCode": true,
         "allowSyntheticDefaultImports": true,
-        "typeRoots": [
-            "./node_modules/@types",
-            "./src/typings"
-        ]
-    },
-    "include": [
-        "gulpfile.ts"
-    ],
-    "exclude": [
-        "./node_modules",
-        "./packages",
-        "./packages/*/types"
-    ],
-    "compileOnSave": true,
-    "typeAcquisition": {
-        "enable": true
+        "baseUrl": "./",
+        "paths": {
+            "@radic/generators": ["./generators/types"],
+            "@radic/generators/*": ["./generators/types/*"],
+            "generator-radical-gitignore": ["./generator-radical-gitignore/types"],
+            "generator-radical-gitignore/*": ["./generator-radical-gitignore/types/*"]
+        }
     }
 }

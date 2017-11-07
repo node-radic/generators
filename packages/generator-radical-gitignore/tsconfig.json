@@ -16,8 +16,7 @@
         "./node_modules",
         "./types",
         "./*.ts",
-        "*.js",
-        "./types"
+        "*.js"
     ],
     "compileOnSave": true
 }

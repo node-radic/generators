@@ -1,5 +1,9 @@
 {
     "private": true,
+    "scripts": {
+        "gulp":"gulp",
+        "nsp": "nsp"
+    },
     "devDependencies": {
         "@types/chai": "^4.0.4",
         "@types/fs-extra": "^4.0.3",
