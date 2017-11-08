@@ -12,6 +12,7 @@ import { existsSync, statSync } from 'fs';
 import { execSync } from 'child_process';
 
 const clean            = require('gulp-clean')
+const pump             = require('pump')
 const DependencySorter = require('dependency-sorter')
 //endregion
 
@@ -56,6 +57,7 @@ interface IdeaIml {
         }>
     }
 }
+
 //endregion
 
 
@@ -118,7 +120,9 @@ const createTsTask = (name, pkg, dest, tsProject: TSProjectOptions = {}) => {
         .concat(globule.find(join(pkg.path.to('*.js'))))
 
 
-    gulp.task('clean:' + name, (cb) => gulp.src(paths).pipe(clean()).on('finish', () => cb()));
+    gulp.task('clean:' + name, (cb) => {
+        pump(gulp.src(paths), clean(), (err) => cb(err))
+    });
     const tsconfig = _.merge(c.ts.defaults, tsProject)
     // const tsconfigc      = _.clone(tsconfig)
     // tsconfigc.typescript = null
@@ -189,7 +193,7 @@ gulp.task('idea', (cb) => {
 
 //region: MAIN TASKS
 gulp.task('clean', [ `clean:${c.ts.taskPrefix}` ])
-gulp.task('build', [ 'clean', `build:${c.ts.taskPrefix}` ])
+gulp.task('build', [ 'clean', `build:${c.ts.taskPrefix}`, 'idea' ])
 gulp.task('default', [ 'build' ])
 //endregion
 
