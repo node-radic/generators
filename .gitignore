@@ -55,6 +55,8 @@ nb-configuration.xml
 /.idea/misc.xml
 /.idea/dataSource*
 /.idea/sonar*
+/.idea/libraries/tsconfig_roots.xml
+/.idea/jsMappings.xml
 /gulpfile.js
 npm-debug.log
 yarn-error.log

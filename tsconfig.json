@@ -1,9 +1,10 @@
 {
     "compilerOptions": {
         "target": "es5",
-        "lib": ["es2017", "dom"],
+        "lib": ["es2017", "es2016.array.include"],
         "moduleResolution": "node",
         "module": "commonjs",
+        "noLib": true,
         "emitDecoratorMetadata": true,
         "inlineSourceMap": true,
         "allowJs": false,
@@ -17,8 +18,7 @@
         "allowUnreachableCode": true,
         "allowSyntheticDefaultImports": true,
         "typeRoots": [
-            "./node_modules/@types",
-            "./src/typings"
+            "./node_modules/@types"
         ]
     },
     "include": [
