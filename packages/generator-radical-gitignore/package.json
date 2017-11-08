@@ -8,8 +8,12 @@
         "yeoman-generator"
     ],
     "scripts": {
-        "test": "echo \"Error: no test specified\" && exit 1",
-        "build": "tsc"
+        "build": "tsc",
+        "pretest": "tsc",
+        "test": "nyc mocha",
+        "posttest": "rimraf test/**/*.js",
+        "watch": "mocha-typescript-watch",
+        "prepare": "tsc"
     },
     "author": "Robin Radic <rradic@hotmail.com> (https://radic.nl/)",
     "license": "MIT",

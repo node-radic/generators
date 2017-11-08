@@ -6,6 +6,8 @@ import Base = require('@radic/generators');
  *
  */
 class AppGenerator extends Base {
-
+    doIt(){
+        console.log(this)
+    }
 }
 export = AppGenerator

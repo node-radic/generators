@@ -1,15 +1,13 @@
 {
     "compilerOptions": {
-        "target": "es5",
-        "lib": ["es2017", "es2016.array.include"],
+        "target": "es6",
+        "lib": ["es2017"],
         "moduleResolution": "node",
         "module": "commonjs",
-        "noLib": true,
         "emitDecoratorMetadata": true,
         "inlineSourceMap": true,
         "allowJs": false,
         "inlineSources": true,
-        "declarationDir": "./types",
         "declaration": true,
         "experimentalDecorators": true,
         "pretty": true,
@@ -18,7 +16,8 @@
         "allowUnreachableCode": true,
         "allowSyntheticDefaultImports": true,
         "typeRoots": [
-            "./node_modules/@types"
+            "./node_modules/@types",
+            "./types"
         ]
     },
     "include": [

@@ -61,10 +61,6 @@ interface IdeaJsMappings {
 
 //endregion
 
-
-let lerna = require('lerna')
-let a     = 'a';
-
 //region: CONFIG
 const c = {
     pkg  : require('./package.json'),
@@ -111,52 +107,9 @@ const packageNames = packages.map(pkg => pkg.name);
 //endregion
 
 
-//region: TASKS:TYPESCRIPT
-const createTsTask = (name, pkg, dest, tsProject: TSProjectOptions = {}) => {
-    let proj  = gts.createProject(pkg.path.to('tsconfig.json'));
-    let paths = [ proj.options.declarationDir ]
-        .concat(
-            globule
-                .find(join(pkg.path.to('src'), '**/*'))
-                .filter(path => statSync(path).isDirectory())
-                .map(path => path.replace(pkg.path.to('src'), pkg.path))
-        )
-        .concat(globule.find(join(pkg.path.to('*.js'))))
-
-
-    gulp.task('clean:' + name, (cb) => {
-        pump(gulp.src(paths), clean(), (err) => cb(err))
-    });
-    const tsconfig = _.merge(c.ts.defaults, tsProject)
-    // const tsconfigc      = _.clone(tsconfig)
-    // tsconfigc.typescript = null
-    // console.log({ dest: pkg.path + '', src: pkg.path.to('src/**/*.ts'), tsconfigc })
-    gulp.task('build:' + name, (cb) => {
-        execSync(resolve('node_modules/.bin/tsc'), { cwd: pkg.path + '' })
-        cb()
-        // pump(
-        //     gulp.src(pkg.path.to('src/**/*.ts')),
-        //     gts.createProject(pkg.path.to('tsconfig.json'), tsconfig)(),
-        //     gulp.dest(pkg.path+''),
-        //     cb
-        // )
-    })
-    gulp.task('watch:' + name, () => {
-        gulp.watch(pkg.path.to('src/**/*.ts'), (event: WatchEvent) => {
-            // let directory = dirname(event.path.replace(resolve(__dirname, 'packages'), ''));
-            gulp.start('build:' + name, 'idea')
-        })
-    });
-    return name;
-}
-const tsTasks      = packages.map(pkg => createTsTask(`${c.ts.taskPrefix}:${pkg.directory}`, pkg, '/', {}));
-[ 'build', 'clean', 'watch' ].forEach(prefix => gulp.task(`${prefix}:ts`, tsTasks.map(name => `${prefix}:${name}`)));
-//endregion
-
-
 //region: TASKS:INTELLIJ
 gulp.task('idea', (cb) => {
-    const url       = (...parts: any[]) => join.apply(null, [ 'file://$MODULE_DIR$/' ].concat(parts))
+    const url       = (...parts: any[]) => [ 'file://$MODULE_DIR$/' ].concat(join.apply(null, parts)).join('')
     let editIml     = existsSync(resolve('.idea/libraries/tsconfig_roots.xml')),
           editJsMap = existsSync(resolve('.idea/jsLibraryMappings.xml'));
 
@@ -183,24 +136,24 @@ gulp.task('idea', (cb) => {
                 .pipe(xmlEdit((xml: IdeaIml) => {
                     // remote tsconfig$roots
                     xml.module.component[ 0 ].orderEntry = xml.module.component[ 0 ].orderEntry.filter(entry => entry.$.name !== 'tsconfig$roots')
-                    const content = xml.module.component[ 0 ].content[ 0 ];
-                    content.excludeFolder = content.excludeFolder || []
-                    content.sourceFolder = content.sourceFolder || []
-                    const excludeFolders: string[] = content.excludeFolder.map(sf => sf.$.url)
-                    const sourceFolders : string[] = content.sourceFolder.map(sf => sf.$.url)
+                    const content                        = xml.module.component[ 0 ].content[ 0 ];
+                    content.excludeFolder                = content.excludeFolder || []
+                    content.sourceFolder                 = content.sourceFolder || []
+                    const excludeFolders: string[]       = content.excludeFolder.map(sf => sf.$.url)
+                    const sourceFolders: string[]        = content.sourceFolder.map(sf => sf.$.url)
 
                     // ensure we exclude all types folders
-                    getDirs('types', path => !excludeFolders.includes(path)).forEach(url => {
+                    getDirs('types', path => ! excludeFolders.includes(path)).forEach(url => {
                         content.excludeFolder.push({ $: { url } })
                     })
 
                     // ensure we test all test folders
-                    getDirs('test', path => !sourceFolders.includes(path)).forEach(url => {
+                    getDirs('test', path => ! sourceFolders.includes(path)).forEach(url => {
                         content.sourceFolder.push({ $: { url, isTestSource: 'true' } })
                     })
 
                     // ensure we source all src folders
-                    getDirs('src', path => !sourceFolders.includes(path)).forEach(url => {
+                    getDirs('src', path => ! sourceFolders.includes(path)).forEach(url => {
                         content.sourceFolder.push({ $: { url, isTestSource: 'false' } })
                     })
                     return xml;
@@ -231,16 +184,101 @@ gulp.task('idea', (cb) => {
 //endregion
 
 
+//region: TASKS:TYPESCRIPT
+let srcNames       = []
+let testNames      = []
+const createTsTask = (name, pkg, dest, tsProject: TSProjectOptions = {}) => {
+    let proj        = gts.createProject(pkg.path.to('tsconfig.json'));
+    let cleanPaths  = [ proj.options.declarationDir ]
+        .concat(
+            globule
+                .find(join(pkg.path.to('src'), '**/*'))
+                .filter(path => statSync(path).isDirectory())
+                .map(path => path.replace(pkg.path.to('src'), pkg.path))
+        )
+        .concat(globule.find(join(pkg.path.to('*.js'))));
+    let hasTests    = existsSync(pkg.path.to('test'));
+    let returnNames = [ name ];
+
+    gulp.task('clean:' + name, (cb) => {
+        pump(gulp.src(cleanPaths), clean(), (err) => cb(err))
+    });
+    // const tsconfig = _.merge(c.ts.defaults, tsProject)
+    // const tsconfigc      = _.clone(tsconfig)
+    // tsconfigc.typescript = null
+    // console.log({ dest: pkg.path + '', src: pkg.path.to('src/**/*.ts'), tsconfigc })
+    gulp.task('build:' + name, (cb) => {
+        execSync(resolve('node_modules/.bin/tsc'), { cwd: pkg.path + '' })
+        cb()
+        // pump(
+        //     gulp.src(pkg.path.to('src/**/*.ts')),
+        //     gts.createProject(pkg.path.to('tsconfig.json'), tsconfig)(),
+        //     gulp.dest(pkg.path+''),
+        //     cb
+        // )
+    })
+    gulp.task('watch:' + name, () => {
+        gulp.watch([ pkg.path.to('src/**/*.ts'), pkg.path.to('test/**/*.ts') ], (event: WatchEvent) => {
+            // let directory = dirname(event.path.replace(resolve(__dirname, 'packages'), ''));
+            gulp.start('build:' + name, 'idea')
+        })
+    });
+    srcNames.push(name)
+
+    if ( hasTests ) {
+        gulp.task(`clean:${name}:test`, (cb) => {
+            pump(gulp.src(pkg.path.to('test/**/*.js')), clean(), (err) => cb(err))
+        });
+        gulp.task(`build:${name}:test`, (cb) => {
+            let testProject = gts.createProject(pkg.path.to('tsconfig.json'), <TSProjectOptions> {
+                declaration: false, outDir: './test'
+            });
+            delete testProject.options.declarationDir
+            gulp.src(pkg.path.to('test/**/*.ts'))
+                .pipe(testProject())
+                .pipe(gulp.dest(pkg.path.to('test')))
+        })
+        gulp.task(`watch:${name}:test`, () => {
+            gulp.watch(pkg.path.to('test/**/*.ts'), (event: WatchEvent) => {
+                gulp.start(`build:${name}:test`)
+            })
+        });
+        testNames.push(`${name}:test`);
+    }
+}
+packages.forEach(pkg => createTsTask(`${c.ts.taskPrefix}:${pkg.directory}`, pkg, '/', {}));
+[ 'build', 'clean', 'watch' ].forEach(prefix => gulp.task(`${prefix}:ts`, srcNames.map(name => `${prefix}:${name}`)));
+[ 'build', 'clean', 'watch' ].forEach(prefix => gulp.task(`${prefix}:ts:test`, testNames.map(name => `${prefix}:${name}`)));
+
+//     srcNames.map()
+//     let subTasks = []
+//     tsTasks.forEach(names => names.forEach(name => subTasks.push(`${prefix}:${name}`)))
+//     console.dir({prefix, subTasks, tsTasks})
+//     gulp.task(`${prefix}:ts`, subTasks)
+// });
+// const tsTasks      = packages.map(pkg => createTsTask(`${c.ts.taskPrefix}:${pkg.directory}`, pkg, '/', {}));
+// [ 'build', 'clean', 'watch' ].forEach(prefix => gulp.task(`${prefix}:ts`, tsTasks.map(name => `${prefix}:${name}`)));
+//endregion
+
+
 //region: MAIN TASKS
-gulp.task('clean', [ `clean:${c.ts.taskPrefix}` ])
-gulp.task('build', [ 'clean' ], () => gulp.start(`build:${c.ts.taskPrefix}`, 'idea'))
-gulp.task('watch', [ 'build' ], () => gulp.start(`watch:${c.ts.taskPrefix}`))
+gulp.task('clean', [ `clean:${c.ts.taskPrefix}`, `clean:${c.ts.taskPrefix}:test` ])
+gulp.task('build', [ 'clean' ], () => gulp.start(`build:${c.ts.taskPrefix}`, `build:${c.ts.taskPrefix}:test`, 'idea'))
+gulp.task('watch', [ 'build' ], () => gulp.start(`watch:${c.ts.taskPrefix}`, `watch:${c.ts.taskPrefix}:test`))
 gulp.task('default', [ 'build' ])
 //endregion
 
 
 // always run the IntelliJ IDEA fixer
 gulp.start('idea')
+
+
+// let this run by itself
+const baseNames = process.argv.slice(0, 2).map(p => basename(p));
+console.dir(process.argv.slice(2))
+if ( baseNames[ 0 ] === 'node' && baseNames[ 1 ] === 'gulpfile.ts' ) {
+    gulp.start.apply(gulp, process.argv.slice(2))
+}
 
 
 // createTsTask(`ts:${pkg.name}:es`, pkg, 'es', { declaration: true, declarationDir: 'types', target: ts.ScriptTarget.ES5, module: ts.ModuleKind.ES2015 });
@@ -253,3 +291,16 @@ gulp.start('idea')
 //     '.idea/libraries/tsconfig_roots.xml',
 //     '.idea/jsLibraryMappings.xml'
 // ]).pipe(clean())
+
+
+//
+// import BasePublishCommand from 'lerna/lib/commands/PublishCommand.js'
+// class PublishCommand extends BasePublishCommand {
+//
+// }
+//
+// import CLI from 'lerna/lib/cli.js'
+// Yar
+// CLI()
+//
+// console.dir(PublishCommand)

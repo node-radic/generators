@@ -1,19 +1,20 @@
 {
     "private": true,
     "scripts": {
-        "start": "lerna bootstrap",
-        "clean": "npm run clean:build && npm run clean:lerna && npm run clean:modules",
+        "start": "lerna bootstrap && yarn build",
+        "clean": "yarn clean:build && yarn clean:lerna && yarn clean:modules",
         "clean:lerna": "lerna clean --yes",
         "clean:build": "gulp clean",
         "clean:modules": "rimraf node_modules/ *.log",
         "build": "gulp build",
         "watch": "gulp watch",
-        "scan:security": "nsp",
-        "test": ""
+        "scan:security": "nsp check .",
+        "test": "lerna run test",
+        "stop": "yarn clean"
     },
-    "config": {
-        "package-lock": false
-    },
+    "workspaces": [
+        "packages/*"
+    ],
     "devDependencies": {
         "@types/chai": "^4.0.4",
         "@types/fs-extra": "^4.0.3",
@@ -42,6 +43,7 @@
         "@types/vinyl-paths": "^0.0.30",
         "@types/vinyl-source-stream": "^0.0.29",
         "@types/xml2js": "^0.4.0",
+        "@types/yargs": "^8.0.2",
         "@types/yeoman-generator": "^2.0.0",
         "@types/yeoman-test": "^1.7.2",
         "chai": "^4.1.0",
@@ -64,6 +66,8 @@
         "gulp-uglify": "^2.0.0",
         "gulp-util": "^3.0.8",
         "lerna": "^2.5.1",
+        "lerna-changelog": "^0.7.0",
+        "lerna-wizard": "^1.0.9",
         "lodash": "^4.17.4",
         "mocha": "^3.0.1",
         "mocha-typescript": "^1.1.7",
@@ -79,8 +83,5 @@
         "ts-node": "^3.3.0",
         "typescript": "2.5.3",
         "yeoman-test": "^1.7.0"
-    },
-    "workspaces": [
-        "packages/*"
-    ]
+    }
 }
