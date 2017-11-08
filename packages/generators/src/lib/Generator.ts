@@ -1,4 +1,4 @@
-import Base from 'yeoman-generator';
+import * as Base from 'yeoman-generator';
 
 class Generator extends Base {
 
