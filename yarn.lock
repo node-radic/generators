@@ -109,6 +109,12 @@
     "@types/rx" "*"
     "@types/through" "*"
 
+"@types/libxmljs@^0.14.30":
+  version "0.14.30"
+  resolved "https://registry.yarnpkg.com/@types/libxmljs/-/libxmljs-0.14.30.tgz#4cac8f6ebde725285726ef746f3d5e5dac178f4f"
+  dependencies:
+    "@types/node" "*"
+
 "@types/lodash@^4.14.82":
   version "4.14.82"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.82.tgz#18948897f415ef199a93156a66ef7ce1d0d005b9"
