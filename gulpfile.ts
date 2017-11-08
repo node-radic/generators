@@ -1,5 +1,6 @@
 //region: IMPORTS
 import * as gulp from 'gulp';
+import { WatchEvent } from 'gulp';
 import * as gts from 'gulp-typescript';
 import { Settings } from 'gulp-typescript';
 import * as ts from 'typescript';
@@ -25,26 +26,14 @@ interface IdeaIml {
     module: {
         $: { type: string, version: string },
         component: Array<{
-            '$': {
-                'name': string,
-                'inherit-compiler-output': IdeaBoolean
-            },
+            '$': { 'name': string, 'inherit-compiler-output': IdeaBoolean },
             'exclude-output'?: any[],
             'content'?: Array<{
-                '$': {
-                    'url': string
-                },
+                '$': { 'url': string },
                 'sourceFolder'?: Array<{
-                    '$': {
-                        'url': string,
-                        'isTestSource'?: IdeaBoolean
-                    }
+                    '$': { 'url': string, 'isTestSource'?: IdeaBoolean }
                 }>,
-                'excludeFolder'?: Array<{
-                    '$': {
-                        'url': string
-                    }
-                }>
+                'excludeFolder'?: Array<{ '$': { 'url': string } }>
             }>,
             'orderEntry'?: Array<{
                 '$': {
@@ -58,8 +47,23 @@ interface IdeaIml {
     }
 }
 
+interface IdeaJsMappings {
+    'project': {
+        '$': { 'version': string },
+        'component': Array<{
+            '$': { 'name': 'JavaScriptLibraryMappings' },
+            'file': Array<{
+                '$': { 'url': 'PROJECT' | 'GLOBAL', 'libraries': string }
+            }>
+        }>
+    }
+}
+
 //endregion
 
+
+let lerna = require('lerna')
+let a     = 'a';
 
 //region: CONFIG
 const c = {
@@ -137,49 +141,85 @@ const createTsTask = (name, pkg, dest, tsProject: TSProjectOptions = {}) => {
         //     cb
         // )
     })
+    gulp.task('watch:' + name, () => {
+        gulp.watch(pkg.path.to('src/**/*.ts'), (event: WatchEvent) => {
+            // let directory = dirname(event.path.replace(resolve(__dirname, 'packages'), ''));
+            gulp.start('build:' + name, 'idea')
+        })
+    });
     return name;
 }
 const tsTasks      = packages.map(pkg => createTsTask(`${c.ts.taskPrefix}:${pkg.directory}`, pkg, '/', {}));
-[ 'build', 'clean' ].forEach(prefix => gulp.task(`${prefix}:ts`, tsTasks.map(name => `${prefix}:${name}`)));
+[ 'build', 'clean', 'watch' ].forEach(prefix => gulp.task(`${prefix}:ts`, tsTasks.map(name => `${prefix}:${name}`)));
 //endregion
 
 
 //region: TASKS:INTELLIJ
 gulp.task('idea', (cb) => {
-    const url   = (...parts: any[]) => join.apply(null, [ 'file://$MODULE_DIR$/' ].concat(parts))
-    let editIml = false, editJsMap = false;
-    if ( existsSync(resolve('.idea/libraries/tsconfig_roots.xml')) ) {
-        editIml = true
-        // gulp.src('.idea/libraries/tsconfig_roots.xml').pipe(clean())
-    }
-    if ( existsSync(resolve('.idea/jsLibraryMappings.xml')) ) {
-        editIml = true
-        // edit resolve('.idea/jsLibraryMappings.xml')
-    }
+    const url       = (...parts: any[]) => join.apply(null, [ 'file://$MODULE_DIR$/' ].concat(parts))
+    let editIml     = existsSync(resolve('.idea/libraries/tsconfig_roots.xml')),
+          editJsMap = existsSync(resolve('.idea/jsLibraryMappings.xml'));
+
     if ( editIml || editJsMap ) {
         const xmlEdit = require('gulp-edit-xml')
         /** @link https://github.com/t1st3/muxml#options **/
         const muxml   = require('gulp-muxml')
         if ( editIml ) {
-            const sourceFolders  = packages.map(pkg => pkg.path.to('src'))
-            const excludeFolders = packages.map(pkg => pkg.path.to('typings'))
-            gulp
-                .src('.idea/*.iml')
+            const getDirs = (name: string, filter: (path: string) => boolean): string[] => packages
+                .map(pkg => pkg.path.to(name))
+                .filter(path => {
+                    return existsSync(path)
+                })
+                .filter(path => {
+                    return statSync(path).isDirectory()
+                })
+                .map(path => {
+                    path = url(path.replace(__dirname, ''))
+                    return path
+                })
+                .filter(filter)
+
+            gulp.src('.idea/*.iml')
                 .pipe(xmlEdit((xml: IdeaIml) => {
                     // remote tsconfig$roots
                     xml.module.component[ 0 ].orderEntry = xml.module.component[ 0 ].orderEntry.filter(entry => entry.$.name !== 'tsconfig$roots')
+                    const content = xml.module.component[ 0 ].content[ 0 ];
+                    content.excludeFolder = content.excludeFolder || []
+                    content.sourceFolder = content.sourceFolder || []
+                    const excludeFolders: string[] = content.excludeFolder.map(sf => sf.$.url)
+                    const sourceFolders : string[] = content.sourceFolder.map(sf => sf.$.url)
 
                     // ensure we exclude all types folders
-                    const excludeFolders = xml.module.component[ 0 ].content[ 0 ].excludeFolder.map(sf => sf.$.url)
-                    packages.map(pkg => pkg.path.to('types')).filter(url => excludeFolders.includes(url)).forEach(url => {
-                        xml.module.component[ 0 ].content[ 0 ].excludeFolder.push({ $: { url } })
+                    getDirs('types', path => !excludeFolders.includes(path)).forEach(url => {
+                        content.excludeFolder.push({ $: { url } })
+                    })
+
+                    // ensure we test all test folders
+                    getDirs('test', path => !sourceFolders.includes(path)).forEach(url => {
+                        content.sourceFolder.push({ $: { url, isTestSource: 'true' } })
                     })
 
                     // ensure we source all src folders
-                    const sourceFolders = xml.module.component[ 0 ].content[ 0 ].sourceFolder.map(sf => sf.$.url)
-                    packages.map(pkg => pkg.path.to('src')).filter(url => sourceFolders.includes(url)).forEach(url => {
-                        xml.module.component[ 0 ].content[ 0 ].sourceFolder.push({ $: { url, isTestSource: 'false' } })
+                    getDirs('src', path => !sourceFolders.includes(path)).forEach(url => {
+                        content.sourceFolder.push({ $: { url, isTestSource: 'false' } })
                     })
+                    return xml;
+                }))
+                .pipe(muxml({ identSpaces: 2 }))
+                .pipe(gulp.dest('.idea/'))
+        }
+        if ( editJsMap ) {
+
+            // noinspection TypeScriptUnresolvedFunction
+            gulp.src('.idea/jsLibraryMappings.xml')
+                .pipe(xmlEdit((xml: IdeaJsMappings) => {
+                    // if(xml.project.component.length > 0) {
+                    if ( xml.project.component[ 0 ].file[ 0 ].$.libraries.includes('tsconfig$roots') ) {
+                        xml.project.component[ 0 ].file[ 0 ].$.libraries = xml.project.component[ 0 ].file[ 0 ].$.libraries
+                            .replace(', tsconfig$roots', '')
+                            .replace('tsconfig$roots, ', '')
+                            .replace('tsconfig$roots', '')
+                    }
                     return xml;
                 }))
                 .pipe(muxml({ identSpaces: 2 }))
@@ -193,7 +233,8 @@ gulp.task('idea', (cb) => {
 
 //region: MAIN TASKS
 gulp.task('clean', [ `clean:${c.ts.taskPrefix}` ])
-gulp.task('build', [ 'clean', `build:${c.ts.taskPrefix}`, 'idea' ])
+gulp.task('build', [ 'clean' ], () => gulp.start(`build:${c.ts.taskPrefix}`, 'idea'))
+gulp.task('watch', [ 'build' ], () => gulp.start(`watch:${c.ts.taskPrefix}`))
 gulp.task('default', [ 'build' ])
 //endregion
 

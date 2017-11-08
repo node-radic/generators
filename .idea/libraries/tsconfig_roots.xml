@@ -1,13 +1,8 @@
 <component name="libraryTable">
   <library name="tsconfig$roots" type="javaScript">
-    <properties>
-      <sourceFilesUrls>
-        <item url="file://$PROJECT_DIR$/packages/generator-radical-gitignore/types" />
-        <item url="file://$PROJECT_DIR$/packages/generators/types" />
-      </sourceFilesUrls>
-    </properties>
     <CLASSES>
       <root url="file://$PROJECT_DIR$/packages/generator-radical-gitignore/types" />
+      <root url="file://$PROJECT_DIR$/packages/generators/types" />
       <root url="file://$PROJECT_DIR$/packages/generators/types" />
     </CLASSES>
     <JAVADOC />

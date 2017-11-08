@@ -5,7 +5,7 @@ class Generator extends Base {
 }
 namespace Generator {
     export interface Blabla {
-
+        foo: string
     }
 
 }
