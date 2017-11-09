@@ -20,7 +20,9 @@
             "@radic/generators": ["./generators/types"],
             "@radic/generators/*": ["./generators/types/*"],
             "generator-radical-gitignore": ["./generator-radical-gitignore/types"],
-            "generator-radical-gitignore/*": ["./generator-radical-gitignore/types/*"]
+            "generator-radical-gitignore/*": ["./generator-radical-gitignore/types/*"],
+            "generator-radic": ["./generator-radic/types"],
+            "generator-radic/*": ["./generator-radic/types/*"]
         }
     }
 }

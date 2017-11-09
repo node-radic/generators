@@ -1,0 +1,26 @@
+{
+    "name": "generator-radic",
+    "version": "0.0.1",
+    "description": "",
+    "main": "index.js",
+    "types": "types",
+    "keywords": [
+        "yeoman-generator"
+    ],
+    "files": [
+        "app"
+    ],
+    "scripts": {
+        "build": "tsc",
+        "pretest": "tsc",
+        "test": "nyc mocha",
+        "posttest": "rimraf test/**/*.js",
+        "watch": "mocha-typescript-watch",
+        "prepare": "tsc"
+    },
+    "author": "Robin Radic <rradic@hotmail.com> (https://radic.nl/)",
+    "license": "MIT",
+    "dependencies": {
+        "@radic/generators": "^0.0.1"
+    }
+}

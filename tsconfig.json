@@ -6,7 +6,6 @@
         "module": "commonjs",
         "emitDecoratorMetadata": true,
         "inlineSourceMap": true,
-        "allowJs": false,
         "inlineSources": true,
         "declaration": true,
         "experimentalDecorators": true,
@@ -14,7 +13,6 @@
         "noImplicitAny": false,
         "noImplicitReturns": false,
         "allowUnreachableCode": true,
-        "allowSyntheticDefaultImports": true,
         "typeRoots": [
             "./node_modules/@types",
             "./types"

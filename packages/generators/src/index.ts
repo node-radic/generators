@@ -2,4 +2,4 @@
 import Generator from './lib';
 
 
-export = Generator
+export default Generator

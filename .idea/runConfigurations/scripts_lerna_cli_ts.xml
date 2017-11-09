@@ -1,0 +1,5 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="scripts/lerna/cli.ts" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="$USER_HOME$/.nvm/versions/node/v8.4.0/bin/node" path-to-js-file="scripts/lerna/cli.ts" node-parameters="--nolazy -r ts-node/register --inspect" working-dir="$PROJECT_DIR$">
+    <method />
+  </configuration>
+</component>
