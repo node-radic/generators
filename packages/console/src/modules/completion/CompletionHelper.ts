@@ -1,4 +1,4 @@
-import { helper } from '../../decorators';
+ import { helper } from '../../decorators';
 import { CommandConfig, HelperOptionsConfig, OptionConfig } from '../../interfaces';
 import { CliExecuteCommandParsedEvent, CliExecuteCommandParseEvent, CliStartEvent } from '../../core/events';
 
